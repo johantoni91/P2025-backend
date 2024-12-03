@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\API;
 use App\Models\Access;
 use App\Models\Modul;
-use app\Models\Role;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -57,6 +57,7 @@ class RoleController extends Controller
             $update = Access::where('roles_id', $id)->where('modules_id', $req->modules_id)->update([
                 'status'    => $req->status,
                 'dashboard' => $req->dashboard,
+                'graph'     => $req->graph,
                 'create'    => $req->permission == null ? '0' : (in_array('create', $req->permission) ? '1' : '0'),
                 'update'    => $req->permission == null ? '0' : (in_array('update', $req->permission) ? '1' : '0'),
                 'delete'    => $req->permission == null ? '0' : (in_array('delete', $req->permission) ? '1' : '0')
@@ -64,6 +65,21 @@ class RoleController extends Controller
             if (!$update) {
                 return API::withoutData(false, $aksi, 400);
             }
+            return API::withoutData(true, $aksi);
+        } catch (\Throwable $th) {
+            return API::withoutData(false, $aksi, 400, $th->getMessage());
+        }
+    }
+
+    function face($id)
+    {
+        $aksi = 'ubah akses face recognition';
+        try {
+            $access = Access::where('roles_id', $id)->first();
+            if (!$access) {
+                return API::withoutData(false, 'Role tidak ditemukan');
+            }
+            Access::where('roles_id', $id)->update(['face' => $access->face == '1' ? '0' : '1']);
             return API::withoutData(true, $aksi);
         } catch (\Throwable $th) {
             return API::withoutData(false, $aksi, 400, $th->getMessage());

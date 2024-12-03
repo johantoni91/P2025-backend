@@ -21,6 +21,8 @@ return new class extends Migration
 
             $table->enum('status', ['0', '1'])->default(1);
             $table->enum('dashboard', ['0', '1'])->default(1);
+            $table->enum('graph', ['0', '1'])->default(1);
+            $table->enum('face', ['0', '1'])->default(1);
             $table->enum('create', ['0', '1'])->default(1);
             $table->enum('update', ['0', '1'])->default(1);
             $table->enum('delete', ['0', '1'])->default(1);

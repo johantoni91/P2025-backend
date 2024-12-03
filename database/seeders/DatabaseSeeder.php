@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Access;
 use App\Models\Layout;
 use App\Models\Modul;
+use App\Models\Recognition;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -57,6 +58,10 @@ class DatabaseSeeder extends Seeder
             'short_app_name' => 'APP',
             'header'         => '1',
             'footer'         => '1'
+        ]);
+
+        Recognition::insert([
+            'id'    => rand()
         ]);
     }
 }

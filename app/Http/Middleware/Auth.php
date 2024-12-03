@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use app\Models\LogActivity;
+use App\Models\LogActivity;
 use App\Models\User;
 use Carbon\Carbon;
 use Closure;
@@ -22,7 +22,7 @@ class Auth
                 return $next($request);
             } else {
                 LogActivity::insert([
-                    'username'      => 'Unknown',
+                    'username'      => 'Trespasser',
                     'action'        => 'Akses API',
                     'entity'        => 'Entitas Tak Dikenal',
                     'entity_id'     => '-',
@@ -45,7 +45,7 @@ class Auth
                     'created_at'    => Carbon::now()
                 ]);
                 return response()->json([
-                    'username'      => 'Unknown',
+                    'username'      => 'Trespasser',
                     'action'        => 'Akses API',
                     'entity'        => 'Entitas Tak Dikenal',
                     'entity_id'     => '-',

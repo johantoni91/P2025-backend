@@ -14,7 +14,11 @@ class LayoutController extends Controller
     function index()
     {
         $aksi = 'mendapatkan data layout';
-        return API::withData(true, $aksi, Layout::get());
+        try {
+            return API::withData(true, $aksi, Layout::get());
+        } catch (\Throwable $th) {
+            return API::withoutData(false, $aksi, 400, $th->getMessage());
+        }
     }
 
     function update(Request $req, $id)
@@ -36,15 +40,21 @@ class LayoutController extends Controller
             ];
 
             if ($req->hasFile('icon')) {
+                if ($layout->icon) {
+                    if (File::exists(FileHelper::publicPath($layout->icon))) {
+                        File::delete(FileHelper::publicPath($layout->icon));
+                    }
+                }
                 $filename = rand() . '_app_icon.' . $req->file('icon')->getClientOriginalExtension();
-                File::exists(FileHelper::publicPath($layout->icon)) ? File::delete(FileHelper::publicPath($layout->icon)) : '';
                 $req->file('icon')->move('layout', $filename);
                 $param['icon'] = env('APP_URL', 'http://localhost:8001') . '/' . 'layout/' . $filename;
             }
 
             if ($req->hasFile('img_login_bg')) {
+                if ($layout->img_login_bg) {
+                    File::exists(FileHelper::publicPath($layout->img_login_bg)) ? File::delete(FileHelper::publicPath($layout->img_login_bg)) : '';
+                }
                 $filename = rand() . '_img_login_bg.' . $req->file('img_login_bg')->getClientOriginalExtension();
-                File::exists(FileHelper::publicPath($layout->img_login_bg)) ? File::delete(FileHelper::publicPath($layout->img_login_bg)) : '';
                 $req->file('img_login_bg')->move('layout', $filename);
                 $param['img_login_bg'] = env('APP_URL', 'http://localhost:8001') . '/' . 'layout/' . $filename;
             }

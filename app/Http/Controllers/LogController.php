@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helper\API;
-use app\Models\LogActivity;
+use App\Models\LogActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,15 +12,15 @@ class LogController extends Controller
     function index()
     {
         $aksi = 'Mendapatkan Semua Log Aktivitas';
-        $log = LogActivity::orderBy('created_at', 'desc')->paginate(5);
-        return API::withData(true, $aksi, $log, 200);
+        $log = LogActivity::orderBy('created_at', 'desc')->paginate(10);
+        return API::withData(true, $aksi, $log);
     }
 
     function all()
     {
         $aksi = 'Mendapatkan Semua Log Aktivitas';
         $log = LogActivity::orderBy('created_at', 'desc')->get();
-        return API::withData(true, $aksi, $log, 200);
+        return API::withData(true, $aksi, $log);
     }
 
     function store(Request $request)
@@ -64,29 +64,33 @@ class LogController extends Controller
         $aksi = 'Mendapatkan hasil pencarian log';
         try {
             if ($req->start == null || $req->end == null) {
-                $log = LogActivity::orderBy('created_at', 'desc')
+                $log = LogActivity::orderBy($req->sort_by ?? 'created_at', $req->sort_order ?? 'asc')
                     ->where('username', 'LIKE', '%' . $req->username . '%')
                     ->where('action', 'LIKE', '%' . $req->action . '%')
                     ->where('ip_address', 'LIKE', '%' . $req->ip_address . '%')
-                    ->paginate(5)->appends([
+                    ->paginate($req->pagination)->appends([
                         'username'   => $req->username,
                         'action'     => $req->action,
                         'ip_address' => $req->ip_address,
-                        'start'      => $req->start,
-                        'end'        => $req->end
+                        'pagination' => $req->pagination,
+                        'sort_by'    => $req->sort_by,
+                        'sort_order' => $req->sort_order
                     ]);
             } else {
-                $log = LogActivity::orderBy('created_at', 'desc')
+                $log = LogActivity::orderBy($req->sort_by ?? 'created_at', $req->sort_order ?? 'asc')
                     ->where('username', 'LIKE', '%' . $req->username . '%')
                     ->where('action', 'LIKE', '%' . $req->action . '%')
                     ->where('ip_address', 'LIKE', '%' . $req->ip_address . '%')
-                    ->whereBetween('created_at', [$req->start, $req->end])
-                    ->paginate(5)->appends([
+                    ->whereBetween('created_at', [gmdate('Y-m-d H:i:s', strtotime($req->start)), gmdate('Y-m-d H:i:s', strtotime($req->end))])
+                    ->paginate($req->pagination)->appends([
                         'username'   => $req->username,
                         'action'     => $req->action,
                         'ip_address' => $req->ip_address,
                         'start'      => $req->start,
-                        'end'        => $req->end
+                        'end'        => $req->end,
+                        'pagination' => $req->pagination,
+                        'sort_by'    => $req->sort_by,
+                        'sort_order' => $req->sort_order
                     ]);
             }
             return API::withData(true, $aksi, $log);

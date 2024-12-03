@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Helper\API;
 use App\Models\Role;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -19,25 +18,46 @@ class UsersController extends Controller
         return API::withData(true, $aksi, $users);
     }
 
+    function checkPhotoRecognition($id)
+    {
+        $aksi = 'mendapatkan data photo recognition';
+        $user = User::find($id);
+        return API::withData(true, $aksi, $user->face);
+    }
+
     function indexAll()
     {
         $aksi = 'Mendapatkan Semua Users';
-        $users = User::orderBy('name', 'desc')->select('name', 'email', 'role', 'created_at')->get();
+        $users = User::with(['Role'])->orderBy('name', 'desc')->get();
         return API::withData(true, $aksi, $users);
+    }
+
+    function find($id)
+    {
+        $aksi = 'Menemukan user';
+        $user = User::with(['Role'])->find($id);
+        if ($user) {
+            return API::withData(true, $aksi, $user);
+        } else {
+            return API::withoutData(false, $aksi);
+        }
     }
 
     function search(Request $req)
     {
         $aksi = 'Mendapatkan hasil pencarian user';
         try {
-            $user = User::orderBy('created_at', 'desc')
+            $user = User::orderBy($req->sort_by, $req->sort_order)
                 ->where('name', 'LIKE', '%' . $req->name . '%')
                 ->where('role', $req->role)
                 ->where('email', 'LIKE', '%' .  $req->email . '%')
-                ->paginate(5)->appends([
-                    'name'  => $req->name,
-                    'role'  => $req->role,
-                    'email' => $req->email
+                ->paginate($req->pagination)->appends([
+                    'name'          => $req->name,
+                    'role'          => $req->role,
+                    'email'         => $req->email,
+                    'pagination'    => $req->pagination,
+                    'sort_by'       => $req->sort_by,
+                    'sort_order'    => $req->sort_order
                 ]);
             return API::withData(true, $aksi, $user);
         } catch (\Throwable $th) {
@@ -62,10 +82,12 @@ class UsersController extends Controller
             if ($check) {
                 return API::withoutData(false, $aksi, 400, 'User sudah terdaftar');
             }
+
             $param = [
                 'id'         => rand(),
                 'name'       => $req->name,
                 'email'      => $req->email,
+                'face'       => $req->face,
                 'role'       => $role->id,
                 'password'   => Hash::make($req->password)
             ];
@@ -105,6 +127,7 @@ class UsersController extends Controller
                 'name'      => $req->name,
                 'email'     => $req->email,
                 'role'      => $req->role,
+                'face'      => $req->face ?? $user->face,
                 'password'  => $req->password ? Hash::make($req->password) : $user->password,
             ];
 
@@ -117,6 +140,22 @@ class UsersController extends Controller
 
             $user->update($param);
             return API::withData(true, $aksi, User::where('id', $id)->first());
+        } catch (\Throwable $th) {
+            return API::withoutData(false, $aksi, 400, $th->getMessage());
+        }
+    }
+
+    function getToken($id)
+    {
+        $aksi = 'membuat token';
+        try {
+            $user = User::find($id);
+            if (!$user) {
+                return API::withoutData(false, $aksi);
+            }
+            $token = rand();
+            $user->update(['access' => $token]);
+            return API::withData(true, $aksi, $token);
         } catch (\Throwable $th) {
             return API::withoutData(false, $aksi, 400, $th->getMessage());
         }

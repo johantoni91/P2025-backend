@@ -14,17 +14,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('recognition', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->foreignId('role')->constrained('roles');
-            $table->text('photo')->nullable();
-            $table->text('face')->nullable();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->text('remember_token')->nullable();
-            $table->text('access')->nullable();
+            $table->enum('mask', ['with_mask', 'without_mask', 'mask_worn_incorrectly', 'mask_worn_correctly'])->default('without_mask');
+            $table->enum('gender', ['male', 'female'])->default('male');
+            $table->float('similarity')->default(0.97);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         });
@@ -37,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('recognition');
     }
 };
