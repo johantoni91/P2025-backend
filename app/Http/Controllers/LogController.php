@@ -35,7 +35,7 @@ class LogController extends Controller
                 'ip_address'    => $request->ip_address,
                 'user_agent'    => $request->user_agent,
                 'url'           => $request->url,
-                'status_code'   => $request->status_code,
+                'status_code'   => $request->status_code ?? '200',
                 'location'      => $request->location,
                 'message'       => $request->message,
                 'additional'    => json_encode([
