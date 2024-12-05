@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('ip_address')->nullable();
             $table->text('user_agent');
             $table->text('url');
-            $table->text('status_code')->nullable();
+            $table->text('status_code')->nullable()->default(200);
             $table->text('location')->nullable();
             $table->text('message')->nullable();
             $table->text('additional')->nullable();

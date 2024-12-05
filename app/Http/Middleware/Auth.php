@@ -29,7 +29,7 @@ class Auth
                     'ip_address'    => $request->ip_address ?? $request->ip(),
                     'user_agent'    => $request->user_agent ?? $request->header('User-Agent'),
                     'url'           => $request->url ?? $request->fullUrl(),
-                    'status_code'   => $response->status() ?? '200',
+                    'status_code'   => $response->status(),
                     'location'      => '',
                     'message'       => 'TERJADI PENYUSUPAN OLEH ENTITAS TAK DIKENAL MENCOBA AKSES API',
                     'additional'    => json_encode([
@@ -52,7 +52,7 @@ class Auth
                     'ip_address'    => $request->ip_address ?? $request->ip(),
                     'user_agent'    => $request->user_agent ?? $request->header('User-Agent'),
                     'url'           => $request->url ?? $request->fullUrl(),
-                    'status_code'   => $response->status() ?? '200',
+                    'status_code'   => $response->status(),
                     'location'      => '',
                     'message'       => 'TERJADI PENYUSUPAN OLEH ENTITAS TAK DIKENAL MENCOBA AKSES API',
                     'additional'    => json_encode([
